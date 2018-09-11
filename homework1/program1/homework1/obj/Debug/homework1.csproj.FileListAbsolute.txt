@@ -1,0 +1,6 @@
+F:\c#作业\homework\homework1\program1\homework1\bin\Debug\homework1.exe.config
+F:\c#作业\homework\homework1\program1\homework1\bin\Debug\homework1.exe
+F:\c#作业\homework\homework1\program1\homework1\bin\Debug\homework1.pdb
+F:\c#作业\homework\homework1\program1\homework1\obj\Debug\homework1.csprojResolveAssemblyReference.cache
+F:\c#作业\homework\homework1\program1\homework1\obj\Debug\homework1.exe
+F:\c#作业\homework\homework1\program1\homework1\obj\Debug\homework1.pdb
