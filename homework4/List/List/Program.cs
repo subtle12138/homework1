@@ -1,474 +1,486 @@
-﻿using System.Collections.Generic;
-using System;
-namespace HomeWork4._2
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
+using System.IO;
+
+namespace Program1
 {
     public class Order
     {
-        public List<OrderDetails> ListOfProduct = new List<OrderDetails>();
-        public String OrderNum { set; get; }
-        public String Customer { set; get; }
+        public string OrderNum { set; get; }
+        public string ClientName { set; get; }
+        public int ProductCategory { set; get; }
+        public int TotalPrice { set; get; }
+        public List<OrderDetails> ListOfDetails = new List<OrderDetails>();
     }
     public class OrderDetails
     {
-        public String TypeOfProduct { set; get; }
-        public int AmountOfProduct { set; get; }
+        public string ProductName { set; get; }
+        public int NumOfProduct { set; get; }
+        public int PriceOfProduct { set; get; }
     }
     public class OrderService
     {
         public List<Order> ListOfOrder = new List<Order>();
-
-        //添加新订单
-        private void NewOrder()
+        public int num = 0;
+        public void DisplayOrder(Order order)
         {
-            Order temp = new Order();
-            Console.Write("输入客户名： ");
-            temp.Customer = Console.ReadLine();
-            Console.Write("输入订单号： ");
-            temp.OrderNum = Console.ReadLine();
-            int Type = 0;
-            Console.Write("请输入订单中商品种类： ");
-            while (Type == 0)
+            Console.Write($"订单号:{order.OrderNum}  ");
+            Console.WriteLine($"用户名:{order.ClientName}");
+            foreach (OrderDetails o in order.ListOfDetails)
             {
-                try
-                {
-                    Type = int.Parse(Console.ReadLine());
-                    if (Type <= 0) throw new System.FormatException();
-                }
-                catch (System.FormatException e)
-                {
-                    Type = 0;
-                    Console.Write(e.Message);
-                    Console.WriteLine("请重新输入： ");
-                }
+                Console.Write($"产品名:{o.ProductName}  ");
+                Console.Write($"产品单价:{o.PriceOfProduct}元  ");
+                Console.WriteLine($"产品数量:{o.NumOfProduct}件");
             }
-
-            for (int nType = 0; nType < Type; nType++)
-            {
-                OrderDetails detail = new OrderDetails();
-                Console.Write("请输入第" + (nType + 1) + "种商品名称： ");
-                detail.TypeOfProduct = Console.ReadLine();
-                Console.Write("请输入商品数目： ");
-                detail.AmountOfProduct = -1;
-                while (detail.AmountOfProduct == -1)
-                {
-                    try
-                    {
-                        detail.AmountOfProduct = int.Parse(Console.ReadLine());
-                        if (detail.AmountOfProduct <= 0) throw new System.FormatException();
-                    }
-                    catch (System.FormatException e)
-                    {
-                        detail.AmountOfProduct = -1;
-                        Console.Write(e.Message);
-                        Console.WriteLine("请重新输入：");
-                    }
-                }
-
-                temp.ListOfProduct.Add(detail);
-            }
-            ListOfOrder.Add(temp);
+            Console.WriteLine($"订单总价为{order.TotalPrice}元");
         }
-
-        //根据客户查找
-        private List<Order> SearchByCustomer(String NameOfCustomer)
+        public void DisplayOrderList(List<Order> orders)
         {
-            List<Order> result = new List<Order>();
-            foreach (Order ele in ListOfOrder)
-            {
-                if (ele.Customer == NameOfCustomer) result.Add(ele);
-            }
-            return result;
+            foreach (Order o in orders)
+                DisplayOrder(o);
         }
-        //根据订单号查找
-        private List<Order> SearchByNum(String NumOfPro)
+        public void DisplayAll()
         {
-            List<Order> result = new List<Order>();
-            foreach (Order ele in ListOfOrder)
+            int i = 1;
+            foreach (Order o in ListOfOrder)
             {
-                if (ele.OrderNum == NumOfPro) result.Add(ele);
+                Console.WriteLine($"{i}.");
+                DisplayOrder(o);
+                i++;
             }
-            return result;
         }
-        //根据产品种类查找
-        private List<Order> SearchByPro(String NameOfProduct)
+        public void AddOrder()
         {
-            List<Order> result = new List<Order>();
-            foreach (Order ele in ListOfOrder)
+            Order newOrder = new Order();
+            Console.Write("请输入订单号:");
+            string s = Console.ReadLine();
+            while (CheckNum(s) != true || CheckRepeat(s) != true)
             {
-                foreach (OrderDetails product in ele.ListOfProduct)
-                    if (product.TypeOfProduct == NameOfProduct) result.Add(ele);
+                Console.Write("请重新输入订单号:");
+                s = Console.ReadLine();
             }
-            return result;
-        }
-
-        //搜索操作
-        private void SearchOrder()
-        {
-            List<Order> SearchResult = new List<Order>();
-            Console.WriteLine
-                ("选择您要进行的服务: 1.根据客户查找； 2.根据订单号查找；3.根据产品种类查找；4.返回主菜单");
-            int whichFun = 0;
-            while (whichFun == 0)
+            newOrder.OrderNum = s;
+            Console.Write("请输入用户名:");
+            newOrder.ClientName = Console.ReadLine();
+            Console.Write("请输入产品种类数:");
+            s = Console.ReadLine();
+            while (CheckNum(s) != true)
             {
-                try
+                Console.Write("请重新输入产品种类数:");
+                s = Console.ReadLine();
+            }
+            newOrder.ProductCategory = int.Parse(s);
+            for (int i = 0; i < newOrder.ProductCategory; i++)
+            {
+                OrderDetails o = new OrderDetails();
+                Console.Write($"请输入第{i + 1}种产品的产品名:");
+                o.ProductName = Console.ReadLine();
+                Console.Write("请输入该产品单价:");
+                s = Console.ReadLine();
+                while (CheckNum(s) != true)
                 {
-                    whichFun = int.Parse(Console.ReadLine());
-                    if (whichFun < 1 || whichFun > 4) throw new System.FormatException();
+                    Console.Write("请重新输入该产品单价:");
+                    s = Console.ReadLine();
                 }
-                catch (System.FormatException e)
+                o.PriceOfProduct = int.Parse(s);
+                Console.Write("请输入该产品数目:");
+                s = Console.ReadLine();
+                while (CheckNum(s) != true)
                 {
-                    whichFun = 0;
-                    Console.Write(e.Message);
-                    Console.WriteLine("请重新输入");
+                    Console.Write("请重新输入该产品数目:");
+                    s = Console.ReadLine();
                 }
+                o.NumOfProduct = int.Parse(s);
+                newOrder.TotalPrice += o.PriceOfProduct * o.NumOfProduct;
+                newOrder.ListOfDetails.Add(o);
             }
-            switch (whichFun)
-            {
-                case 1:
-                    Console.WriteLine("输入客户名: ");
-                    String CustomerName = Console.ReadLine();
-                    SearchResult = SearchByCustomer(CustomerName);
-                    break;
-                case 2:
-                    Console.WriteLine("输入订单号: ");
-                    String OrderNum = Console.ReadLine();
-                    SearchResult = SearchByNum(OrderNum);
-                    break;
-                case 3:
-                    Console.WriteLine("输入产品名: ");
-                    String ProductName = Console.ReadLine();
-                    SearchResult = SearchByPro(ProductName);
-                    break;
-                case 4:
-                    return;
-
-            }
+            ListOfOrder.Add(newOrder);
+            num++;
+        }
+        public bool CheckNum(string s)
+        {
             try
             {
-                WriteResult(SearchResult);
+                int t = int.Parse(s);
             }
-            catch (NoSearchResult e)
+            catch (Exception e)
             {
-                Console.WriteLine(e.NoResult);
+                Console.WriteLine("输入错误！");
+                return false;
             }
-
+            return true;
         }
-        //输出搜索结果
-        private void WriteResult(List<Order> result)
+        public bool CheckRepeat(string s)
         {
-            if (result != null)
+            int t = int.Parse(s);
+            List<Order> orders = SearchByOrderNum(t).ToList();
+            foreach (Order o in orders)
             {
-                foreach (Order ele in result)
+                if (o.OrderNum == s)
                 {
-                    Console.WriteLine("序号：" + result.FindIndex(a => a == ele) +
-                        " 客户名：" + ele.Customer + " 订单号：" + ele.OrderNum);
-                    foreach (OrderDetails pro in ele.ListOfProduct)
-                    {
-                        Console.WriteLine("产品名：" + pro.TypeOfProduct + " 数目：" + pro.AmountOfProduct);
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine("选择您要进行的操作：1.删除； 2.修改； 3.返回主菜单");
-                int whichFun = 0;
-                while (whichFun == 0)
-                {
-                    try
-                    {
-                        whichFun = int.Parse(Console.ReadLine());
-                        if (whichFun < 1 || whichFun > 3) throw new System.FormatException();
-                    }
-                    catch (System.FormatException e)
-                    {
-                        whichFun = 0;
-                        Console.Write(e.Message);
-                        Console.WriteLine("请重新输入");
-                    }
-                }
-                switch (whichFun)
-                {
-                    case 1:
-                        Console.Write("输入您要删除的订单的序号：");
-                        int index = -1;
-                        while (index == -1)
-                        {
-                            try
-                            {
-                                index = int.Parse(Console.ReadLine());
-                                Order temp = result[index];
-                            }
-                            catch (System.ArgumentOutOfRangeException e)
-                            {
-                                index = -1;
-                                Console.WriteLine("序号无效，请重新输入");
-                            }
-                            catch (System.FormatException e)
-                            {
-                                index = -1;
-                                Console.Write(e.Message);
-                                Console.WriteLine("请重新输入");
-                            }
-                        }
-                        deleteOrder(result[index]);
-                        break;
-                    case 2:
-                        Console.WriteLine("选择您要进行的操作：1.修改客户名； 2.修改订单号；3.修改产品信息  4.返回主菜单");
-                        int whichChange = 0;
-                        while (whichChange == 0)
-                        {
-                            try
-                            {
-                                whichChange = int.Parse(Console.ReadLine());
-                                if (whichChange < 1 || whichChange > 4) throw new System.FormatException();
-                            }
-                            catch (System.FormatException e)
-                            {
-                                whichChange = 0;
-                                Console.Write(e.Message);
-                                Console.WriteLine("请重新输入");
-                            }
-                        }
-                        switch (whichChange)
-                        {
-                            case 1:
-                                Console.Write("输入您要修改的订单的序号");
-                                int index1 = -1;
-                                while (index1 == -1)
-                                {
-                                    try
-                                    {
-                                        index1 = int.Parse(Console.ReadLine());
-                                        Order temp = result[index1];
-                                    }
-                                    catch (System.ArgumentOutOfRangeException e)
-                                    {
-                                        index1 = -1;
-                                        Console.WriteLine("序号无效，请重新输入");
-                                    }
-                                    catch (System.FormatException e)
-                                    {
-                                        index1 = -1;
-                                        Console.Write(e.Message);
-                                        Console.WriteLine("请重新输入");
-                                    }
-                                }
-                                if (result[index1] != null)
-                                {
-                                    Console.Write("原用户名为：" + result[index1].Customer);
-                                }
-                                Console.Write(" 输入新的客户名：");
-                                changeCustomerOfOrder(result[index1], Console.ReadLine());
-                                break;
-                            case 2:
-                                Console.Write("输入您要修改的订单的序号");
-                                int index2 = -1;
-                                while (index2 == -1)
-                                {
-                                    try
-                                    {
-                                        index2 = int.Parse(Console.ReadLine());
-                                        Order temp = result[index2];
-                                    }
-                                    catch (System.ArgumentOutOfRangeException e)
-                                    {
-                                        index2 = -1;
-                                        Console.WriteLine("序号无效，请重新输入");
-                                    }
-                                    catch (System.FormatException e)
-                                    {
-                                        index2 = -1;
-                                        Console.Write(e.Message);
-                                        Console.WriteLine("请重新输入");
-                                    }
-                                }
-                                if (result[index2] != null)
-                                {
-                                    Console.Write("原订单号为：" + result[index2].OrderNum);
-                                }
-                                Console.Write(" 输入新的订单号为：");
-                                changeOrderNumOfOrder(result[index2], Console.ReadLine());
-                                break;
-                            case 3:
-                                Console.Write("输入您要修改的订单的序号");
-                                int index3 = -1;
-                                while (index3 == -1)
-                                {
-                                    try
-                                    {
-                                        index3 = int.Parse(Console.ReadLine());
-                                        Order temp = result[index3];
-                                    }
-                                    catch (System.ArgumentOutOfRangeException e)
-                                    {
-                                        index3 = -1;
-                                        Console.WriteLine("序号无效，请重新输入");
-                                    }
-                                    catch (System.FormatException e)
-                                    {
-                                        index3 = -1;
-                                        Console.Write(e.Message);
-                                        Console.WriteLine("请重新输入");
-                                    }
-                                }
-                                Console.Write("请输入您要修改的产品名称");
-                                changeOrderDetailOfOrder(result[index3], Console.ReadLine());
-                                break;
-                            case 4:
-                                return;
-                        }
-                        break;
-                    case 3:
-                        return;
+                    Console.WriteLine("输入错误！");
+                    return false;
                 }
             }
-            else throw new NoSearchResult();
-
+            return true;
         }
-
-        //删除订单
-        private void deleteOrder(Order ele)
+        //序列化
+        public void Import(string xmlFileName)
         {
-            bool IfDelete = false;
-            ListOfOrder.Remove(ele);
-            if (IfDelete == false)
+            try
             {
-                //抛出异常 
+                XmlSerializer xmlser = new XmlSerializer(typeof(List<Order>));
+                FileStream fs = new FileStream(xmlFileName, FileMode.Open);
+                ListOfOrder = (List<Order>)xmlser.Deserialize(fs);
+                fs.Close();
             }
-        }
-
-        //修改订单
-        private void changeCustomerOfOrder(Order ele, String newCustomer)
-        {
-            ele.Customer = newCustomer;
-        }
-        private void changeOrderNumOfOrder(Order ele, String newNum)
-        {
-            ele.OrderNum = newNum;
-        }
-        //修改产品信息
-        private void changeOrderDetailOfOrder(Order ele, String product)
-        {
-            foreach (OrderDetails pro in ele.ListOfProduct)
+            catch (Exception e)
             {
-                if (pro.TypeOfProduct == product)
-                {
-
-                    Console.WriteLine("选择您要进行的服务: 1.修改产品名称； 2.修改产品数目；3.退出；");
-                    int whichFun = 0;
-                    while (whichFun == 0)
-                    {
-                        try
-                        {
-                            whichFun = int.Parse(Console.ReadLine());
-                            if (whichFun < 1 || whichFun > 3) throw new System.FormatException();
-                        }
-                        catch (System.FormatException e)
-                        {
-                            whichFun = 0;
-                            Console.Write(e.Message);
-                            Console.WriteLine("请重新输入");
-                        }
-                    }
-                    switch (whichFun)
-                    {
-                        case 1:
-                            pro.TypeOfProduct = Console.ReadLine();
-                            break;
-                        case 2:
-                            pro.AmountOfProduct = -1;
-                            while (pro.AmountOfProduct == -1)
-                            {
-                                try
-                                {
-                                    pro.AmountOfProduct = int.Parse(Console.ReadLine());
-                                    if (pro.AmountOfProduct <= 0) throw new System.FormatException();
-                                }
-                                catch (System.FormatException e)
-                                {
-                                    pro.AmountOfProduct = -1;
-                                    Console.Write(e.Message);
-                                    Console.WriteLine("请重新输入：");
-                                }
-                            }
-                            break;
-                    }
-                }
+                Console.WriteLine("请重新输入:");
             }
         }
-
-        public void init()
+        public void Export(string xmlFileName)
         {
-            //调试用数据
-            OrderDetails pro1 = new OrderDetails();
-            pro1.TypeOfProduct = "car"; pro1.AmountOfProduct = 10;
-            OrderDetails pro2 = new OrderDetails();
-            pro2.TypeOfProduct = "bike"; pro2.AmountOfProduct = 50;
-            OrderDetails pro3 = new OrderDetails();
-            pro3.TypeOfProduct = "phone"; pro3.AmountOfProduct = 200;
-            Order init1 = new Order();
-            init1.Customer = "张三"; init1.OrderNum = "001"; init1.ListOfProduct.Add(pro1);
-            Order init2 = new Order();
-            init2.Customer = "李四"; init2.OrderNum = "002"; init2.ListOfProduct.Add(pro2);
-            Order init3 = new Order();
-            init3.Customer = "王五"; init3.OrderNum = "003"; init3.ListOfProduct.Add(pro3);
-            ListOfOrder.Add(init1); ListOfOrder.Add(init2); ListOfOrder.Add(init3);
+            XmlSerializer xmlser = new XmlSerializer(typeof(List<Order>));
+            FileStream fs = new FileStream(xmlFileName, FileMode.OpenOrCreate);
+            xmlser.Serialize(fs, ListOfOrder);
+            fs.Close();
         }
-        //入口
-        public void mainService()
+        //使用LINQ语句进行查询操作
+        public List<Order> SearchByOrderNum(int num)
         {
-            Console.WriteLine("选择您要进行的服务: 1.添加订单； 2.查询订单；3.打印全部订单； 4.退出；");
-            int whichFunction = 0;
-            while (whichFunction == 0)
+            var o = ListOfOrder.Where(a => int.Parse(a.OrderNum) == num);
+            return o.ToList();
+        }
+        public List<Order> SearchByClientName(string name)
+        {
+            var o = ListOfOrder.Where(a => a.ClientName == name);
+            return o.ToList();
+        }
+        public List<Order> SearchByProductName(string name)
+        {
+            var o = from l in ListOfOrder from a in l.ListOfDetails where a.ProductName == name select l;
+            return o.ToList();
+        }
+        public List<Order> SearchByPriceOfProduct(int num)
+        {
+            var o = from l in ListOfOrder from a in l.ListOfDetails where a.PriceOfProduct == num select l;
+            return o.ToList();
+        }
+        public List<Order> SearchByNumOfProduct(int num)
+        {
+            var o = from l in ListOfOrder from a in l.ListOfDetails where a.NumOfProduct == num select l;
+            return o.ToList();
+        }
+        public List<Order> SearchByWhichTotalPriceOver(int num)
+        {
+            var o = from l in ListOfOrder where l.TotalPrice >= num select l;
+            return o.ToList();
+        }
+        public int InputSearchFlag()
+        {
+            int tag = 0;
+            Console.WriteLine("请输入要寻找的项目:1.订单号 2.用户名 3.产品名 4.产品单价 5.产品数目 6.订单金额大于某个值的");
+            try
             {
-                try
+                tag = int.Parse(Console.ReadLine());
+                if (!(tag >= 1 && tag <= 6))
                 {
-                    whichFunction = int.Parse(Console.ReadLine());
-                    if (whichFunction < 1 || whichFunction > 4) throw new System.FormatException();
+                    Console.WriteLine("输入错误！");
+                    InputSearchFlag();
                 }
-                catch (System.FormatException e)
-                {
-                    whichFunction = 0;
-                    Console.Write(e.Message);
-                    Console.WriteLine("请重新输入");
-                }
+                return tag;
             }
-            switch (whichFunction)
+            catch (Exception e)
+            {
+                Console.WriteLine("输入错误！");
+                InputSearchFlag();
+            }
+            return 0;
+        }
+        public List<Order> Search()
+        {
+            DisplayAll();
+            List<Order> orders = new List<Order>();
+            int Flag = InputSearchFlag();
+            switch (Flag)
             {
                 case 1:
-                    NewOrder();
+                    Console.Write("请输入订单号:");
+                    string s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入订单号:");
+                        s = Console.ReadLine();
+                    }
+                    orders = SearchByOrderNum(int.Parse(s));
                     break;
                 case 2:
-                    SearchOrder();
+                    Console.Write("请输入用户名:");
+                    orders = SearchByClientName(Console.ReadLine());
                     break;
                 case 3:
-                    try
-                    {
-                        WriteResult(ListOfOrder);
-                    }
-                    catch (NoSearchResult e)
-                    {
-                        Console.WriteLine(e.NoResult);
-                    }
+                    Console.Write("请输入产品名:");
+                    orders = SearchByProductName(Console.ReadLine());
                     break;
                 case 4:
-                    return;
-                default:
+                    Console.Write("请输入产品单价:");
+                    s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入产品单价:");
+                        s = Console.ReadLine();
+                    }
+                    orders = SearchByPriceOfProduct(int.Parse(s));
+                    break;
+                case 5:
+                    Console.Write("请输入产品数目:");
+                    s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入产品数目:");
+                        s = Console.ReadLine();
+                    }
+                    orders = SearchByNumOfProduct(int.Parse(s));
+                    break;
+                case 6:
+                    Console.Write("请输入所需订单总价的下限:");
+                    s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入所需订单总价的下限:");
+                        s = Console.ReadLine();
+                    }
+                    orders = SearchByWhichTotalPriceOver(int.Parse(s));
                     break;
             }
-            mainService();
+            return orders;
         }
-    }
-    public class NoSearchResult : ApplicationException
-    {
-        public String NoResult = "无符合条件的结果";
+        public int InputTag()
+        {
+            int temp;
+            try
+            {
+                Console.WriteLine("请输入所需的订单序号:");
+                temp = int.Parse(Console.ReadLine());
+                if (!(temp >= 1 && temp <= num))
+                {
+                    Console.WriteLine("输入错误！");
+                    InputTag();
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("输入错误！");
+                InputTag();
+            }
+            return 0;
+        }
+        public Order SearchByTag()
+        {
+            int tag = InputTag();
+            try
+            {
+                return ListOfOrder[tag - 1];
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Console.WriteLine("所请求的订单不存在！");
+                SearchByTag();
+            }
+            return null;
+        }
+        public void DelOrderByOrderNum(int num)
+        {
+            Console.Write("请输入要删除的订单的订单号:");
+            var o = ListOfOrder.Where(a => int.Parse(a.OrderNum) == num);
+            List<Order> orders = o.ToList();
+            foreach (Order t in orders)
+            {
+                ListOfOrder.Remove(t);
+                num--;
+            }
+        }
+        public void DelOrderByTag(int n)
+        {
+            ListOfOrder.Remove(ListOfOrder[n - 1]);
+            num--;
+        }
+        public int InputChangeFlag()
+        {
+            int tag = 0;
+            Console.WriteLine("请输入要修改的项目:1.订单号 2.用户名 3.产品名 4.产品单价 5.产品数目");
+            try
+            {
+                tag = int.Parse(Console.ReadLine());
+                if (!(tag >= 1 && tag <= 5))
+                {
+                    Console.WriteLine("输入错误！");
+                    InputChangeFlag();
+                }
+                return tag;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("输入错误！");
+                InputChangeFlag();
+            }
+            return 0;
+        }
+        public void Change()
+        {
+            Order o = SearchByTag();
+            int Flag = InputChangeFlag();
+            switch (Flag)
+            {
+                case 1:
+                    Console.Write("请输入订单号:");
+                    string s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入订单号:");
+                        s = Console.ReadLine();
+                    }
+                    o.OrderNum = s;
+                    break;
+                case 2:
+                    Console.Write("请输入用户名:");
+                    o.ClientName = Console.ReadLine();
+                    break;
+                case 3:
+                    Console.Write("请输入产品名:");
+                    o.ListOfDetails[0].ProductName = Console.ReadLine();
+                    break;
+                case 4:
+                    Console.Write("请输入产品单价:");
+                    s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入产品单价:");
+                        s = Console.ReadLine();
+                    }
+                    o.ListOfDetails[0].PriceOfProduct = int.Parse(s);
+                    break;
+                case 5:
+                    Console.Write("请输入产品数目:");
+                    s = Console.ReadLine();
+                    while (CheckNum(s) != true)
+                    {
+                        Console.Write("请重新输入产品数目:");
+                        s = Console.ReadLine();
+                    }
+                    o.ListOfDetails[0].NumOfProduct = int.Parse(s);
+                    break;
+            }
+        }
+        public string InputXmlFlag(int flag)
+        {
+            string str;
+            if (flag == 0)
+                str = "读取";
+            else
+                str = "输出";
+            Console.Write($"是否需要{str}Xml文件(Y/N):");
+            string s = Console.ReadLine();
+            try
+            {
+                if (!(s == "Y" || s == "N"))
+                {
+                    Console.WriteLine("输入错误！");
+                    InputXmlFlag(flag);
+                }
+                return s;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("输入错误！");
+                Console.Write("请重新输入");
+                InputXmlFlag(flag);
+            }
+            return null;
+        }
+        public int InputControlFlag()
+        {
+            int tag = 0;
+            Console.WriteLine("请选择你的操作:1.添加订单 2.删除订单 3.修改订单 4.查询订单 5.显示所有订单 6.结束操作");
+            try
+            {
+                tag = int.Parse(Console.ReadLine());
+                if (!(tag >= 1 && tag <= 6))
+                {
+                    Console.WriteLine("输入错误！");
+                    InputControlFlag();
+                }
+                return tag;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("输入错误！");
+                InputControlFlag();
+            }
+            return 0;
+        }
+        public void Control()
+        {
+            int ControlFlag = InputControlFlag();
+            switch (ControlFlag)
+            {
+                case 1:
+                    AddOrder();
+                    break;
+                case 2:
+                    foreach (Order o in Search())
+                        ListOfOrder.Remove(o);
+                    break;
+                case 3:
+                    Change();
+                    break;
+                case 4:
+                    DisplayOrderList(Search());
+                    break;
+                case 5:
+                    DisplayAll();
+                    break;
+                case 6:
+                    string XmlFlag = InputXmlFlag(1);
+                    if (XmlFlag == "Y")
+                    {
+                        Console.Write("请输入要存储的文件位置:");
+                        string s = Console.ReadLine();
+                        Export(s);
+                        string xml = File.ReadAllText(s);
+                        Console.WriteLine(xml);
+                    }
+                    return;
+            }
+            Control();
+        }
+        public void Run()
+        {
+            string XmlFlag = InputXmlFlag(0);
+            if (XmlFlag == "Y")
+            {
+                Console.Write("请输入文件位置:");
+                string s = Console.ReadLine();
+                Import(s);
+            }
+            Control();
+        }
     }
     class Program
     {
         static void Main(string[] args)
         {
-            OrderService myOrder = new OrderService();
-            myOrder.init();
-            myOrder.mainService();
-
+            OrderService o = new OrderService();
+            o.Run();
+            Console.ReadLine();
         }
     }
 }
