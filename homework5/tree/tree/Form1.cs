@@ -29,6 +29,9 @@ namespace HomeWork5._2
                 if (textLength.Text != "") myTree.Length = double.Parse(textLength.Text);
                 if (textThLeft.Text != "") myTree.thLeft = double.Parse(textThLeft.Text);
                 if (textThRight.Text != "") myTree.thRight = double.Parse(textThRight.Text);
+                if (Num.Text != "") myTree.nLine = int.Parse(Num.Text) + 1;
+                if (PreL.Text != "") myTree.preLeft = double.Parse(PreL.Text);
+                if (PreR.Text != "") myTree.preRight = double.Parse(PreR.Text);
             }
             catch (System.FormatException fe)
             {
@@ -38,6 +41,10 @@ namespace HomeWork5._2
 
         }
 
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
     }
     public class CayleyTree
     {
@@ -71,6 +78,7 @@ namespace HomeWork5._2
             }
             get { return th2; }
         }
+        //左侧比例
         private double pre1 = 0.6;
         public double preLeft
         {
@@ -80,6 +88,7 @@ namespace HomeWork5._2
             }
             get { return pre1; }
         }
+        //右侧比例
         private double pre2 = 0.7;
         public double preRight
         {
@@ -89,6 +98,7 @@ namespace HomeWork5._2
             }
             get { return pre2; }
         }
+        //分叉数
         private int nline = 8;
         public int nLine
         {
@@ -119,8 +129,8 @@ namespace HomeWork5._2
             double x1 = x + length * Math.Cos(th);
             double y1 = y + length * Math.Sin(th);
             DrawLine(x, y, x1, y1);
-            DrawCayleyTree(n - 1, x1, y1, preLeft * length, th + thLeft);
-            DrawCayleyTree(n - 1, x1, y1, preRight * length, th - thRight);
+            DrawCayleyTree(n - 1, x1, y1, preLeft * length, th - thLeft);
+            DrawCayleyTree(n - 1, x1, y1, preRight * length, th + thRight);
         }
     }
 }
