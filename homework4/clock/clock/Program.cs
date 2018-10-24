@@ -63,9 +63,6 @@ namespace clock
         }
 
     }
-
-
-
     class Program
     {
         static void Main(string[] args)
