@@ -132,6 +132,7 @@ public class Triangle : Shape
             Console.WriteLine("Draw Triangle");
         }
     }
+
     public class TestClass
     {
         static void Main(string[] args)
