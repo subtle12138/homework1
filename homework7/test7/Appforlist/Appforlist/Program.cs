@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml.Serialization;
+using System.Windows.Forms;
+
 
 namespace List
 {
@@ -77,52 +74,17 @@ namespace List
             order3.ListOfDetails.Add(od3);
             orders.Add(order3);
         }
-        //系统启动
-        public void fun()
+        //显示订单
+        public void show(Order od)
         {
-            Console.WriteLine("1.增加订单 2.删除订单 3.修改订单 4.查询订单");
-            int i = int.Parse(Console.ReadLine());
-            switch (i)
+            Console.WriteLine("订单号:" + od.OrderNumber);
+            Console.WriteLine("客户名称:" + od.CustomerName);
+            foreach (OrderDetails d in od.ListOfDetails)
             {
-                case 1:
-                    this.NewOrder();
-                    break;
-                case 2:
-                    this.DeleteOrder();
-                    break;
-                case 3:
-                    this.CorrectOrder();
-                    break;
-                case 4:
-                    this.QueryOrder();
-                    break;
-                default:
-                    Console.WriteLine("输入有误！");
-                    fun();
-                    break;
+                Console.WriteLine("商品名称:" + d.GoodsName);
+                Console.WriteLine("商品数目:" + d.GoodsNumber);
+                Console.WriteLine("商品单价:" + d.Money);
             }
-        }
-        //删除订单
-        private void DeleteOrder()
-        {
-            Console.WriteLine("请输入您要删除的订单号:");
-            int num = int.Parse(Console.ReadLine());
-            foreach (Order od in orders)
-            {
-                if (od.OrderNumber == num)
-                {
-                    orders.Remove(od);
-                    Console.WriteLine("删除成功！");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("订单号不存在");
-                    DeleteOrder();
-                    break;
-                }
-            }
-            fun();
         }
         //修改订单
         private void CorrectOrder()
@@ -179,7 +141,6 @@ namespace List
                     CorrectOrder();
                 }
             }
-            fun();
         }
         //查询订单
         private void QueryOrder()
@@ -236,13 +197,10 @@ namespace List
                 Console.WriteLine("不存在该订单，请重试");
                 this.QueryOrder();
             }
-            fun();
         }
     }
 
 }
-
-
 namespace Appforlist
 {
     static class Program
